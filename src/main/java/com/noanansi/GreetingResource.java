@@ -1,9 +1,12 @@
 package com.noanansi;
 
+import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -33,6 +36,24 @@ public class GreetingResource {
     }
     return Response
         .ok(Map.of("id", id, "message", message))
+        .build();
+  }
+
+  @POST
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response addGreeting(final Map<String, String> greeting) {
+    if (greeting == null || greeting.get("message") == null || greeting.get("message").isBlank()) {
+      return Response
+          .status(Response.Status.BAD_REQUEST)
+          .entity(Map.of("error", "Message can not be null or an empty String!"))
+          .build();
+    }
+    final var id = UUID.randomUUID();
+    final var message = greeting.get("message");
+    greetings.put(id, message);
+    return Response
+        .created(URI.create("/hello/" + id))
+        .entity(Map.of("id", id, "message", message))
         .build();
   }
 

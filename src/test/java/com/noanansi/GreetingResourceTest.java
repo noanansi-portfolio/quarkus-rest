@@ -1,11 +1,11 @@
 package com.noanansi;
 
+import static io.restassured.RestAssured.given;
+
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.http.ContentType;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.is;
 
 @QuarkusTest
 public class GreetingResourceTest {
@@ -24,6 +24,33 @@ public class GreetingResourceTest {
         .when().get("/hello/" + UUID.randomUUID())
         .then()
         .statusCode(404);
+  }
+
+  @Test
+  public void givenEmptyBody_whenGettingResource_thenBadRequest() {
+    given()
+        .body("").contentType(ContentType.JSON)
+        .post("/hello")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
+  public void givenNullMessage_whenGettingResource_thenBadRequest() {
+    given()
+        .body("{}").contentType(ContentType.JSON)
+        .post("/hello")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
+  public void givenValidMessage_whenGettingResource_thenBadRequest() {
+    given()
+        .body("{\"message\":\"Hi there!\"}").contentType(ContentType.JSON)
+        .post("/hello")
+        .then()
+        .statusCode(201);
   }
 
 }
