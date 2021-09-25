@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -51,6 +52,18 @@ public class GreetingResourceTest {
         .post("/hello")
         .then()
         .statusCode(201);
+  }
+
+  @Test
+  public void givenExistingMessage_whenGettingResource_thenBadRequest() {
+    final var response = given()
+        .body("{\"message\":\"Hi there!\"}").contentType(ContentType.JSON)
+        .post("/hello");
+    final var responseBody = response.body().as(Map.class);
+    given()
+        .delete("/hello/" + responseBody.get("id"))
+        .then()
+        .statusCode(200);
   }
 
 }

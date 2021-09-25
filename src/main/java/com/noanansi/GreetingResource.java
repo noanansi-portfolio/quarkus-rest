@@ -1,10 +1,10 @@
 package com.noanansi;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -54,6 +54,21 @@ public class GreetingResource {
     return Response
         .created(URI.create("/hello/" + id))
         .entity(Map.of("id", id, "message", message))
+        .build();
+  }
+
+  @DELETE
+  @Path("/{id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deleteById(@PathParam("id") final String id) {
+    final var message = greetings.remove(UUID.fromString(id));
+    if (message == null) {
+      return Response
+          .status(Response.Status.NOT_FOUND)
+          .build();
+    }
+    return Response
+        .ok(Map.of("id", id, "message", message))
         .build();
   }
 
