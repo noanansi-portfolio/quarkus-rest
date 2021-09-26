@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -54,6 +55,28 @@ public class GreetingResource {
     return Response
         .created(URI.create("/hello/" + id))
         .entity(Map.of("id", id, "message", message))
+        .build();
+  }
+
+  @PATCH
+  @Path("/{id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response update(@PathParam("id") final String id, final Map<String, String> greeting) {
+    if (greeting == null || greeting.get("message") == null || greeting.get("message").isBlank()) {
+      return Response
+          .status(Response.Status.BAD_REQUEST)
+          .build();
+    }
+    final var key = UUID.fromString(id);
+    if (!greetings.containsKey(key)) {
+      return Response
+          .status(Response.Status.NOT_FOUND)
+          .build();
+    }
+    final var message = greeting.get("message");
+    greetings.put(key, message);
+    return Response
+        .ok(Map.of("id", id, "message", message))
         .build();
   }
 
